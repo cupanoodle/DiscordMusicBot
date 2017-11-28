@@ -1,0 +1,6 @@
+{
+  "token": "Put your bot token here",
+  "prefix": "!",
+  "channelWhitelist": ["channel ID", "not yet implimented"],
+  "channelBlacklist": ["channel ID", "not yet implimented"]
+}

@@ -22,28 +22,10 @@ namespace DiscordBotTesting
 
         public bool PauseRequested = false;
         public bool StopRequested = false;
-
-        //public bool IsSkipRequested => this.SkipRequested != null && !this.SkipRequested.Task.IsCompleted;
-        //public TaskCompletionSource<bool> SkipRequested { get; set; }
-        //public async Task WaitForSkip()
-        //{
-        //    if (this.SkipRequested != null)
-        //    {
-        //        await this.SkipRequested.Task.ConfigureAwait(false);
-        //    }
-        //}
         public bool SkipRequested = false;
-
         public bool PrevRequested = false;
         public bool RestartRequested = false;
 
-        //public async Task WaitForResume()
-        //{
-        //    if (this.Paused != null)
-        //    {
-        //        await this.Paused.Task.ConfigureAwait(false);
-        //    }
-        //}
         public async Task PrintLong(CommandContext ctx, string[] s)
         {
             string str = string.Join(Environment.NewLine, s);
@@ -90,7 +72,7 @@ namespace DiscordBotTesting
                 return;
             }
 
-            //TODO: else play the selected song. what to do on index one if not user specified?
+            //TODO: play the selected song if already playing music
 
             bool isCompleted = false;
 
@@ -133,9 +115,6 @@ namespace DiscordBotTesting
                     await ctx.RespondAsync("Already playing music.");
                     return;
                 }
-                // wait for current playback to finish
-                //while (vnc.IsPlaying)
-                //    await vnc.WaitForPlaybackFinishAsync();
 
                 // play
                 Exception exc = null;

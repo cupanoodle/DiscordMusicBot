@@ -85,24 +85,27 @@ namespace DiscordBotTesting
                 if (vnc == null)
                     return;
 
-                if (index < 1 || index > this.playlist.Length)
+                if (index > 0 && index <= this.playlist.Length)
                 {
-                    await ctx.RespondAsync($"Please enter a number between 1 and {this.playlist.Length}.");
-                    return;
-                }
-                else if (index != null)
                     await this.playlist.Seek((int)index - 1);
+
+                    // stop playing current song and play the selected song
+                    if (vnc.IsPlaying)
+                        this.RestartRequested = true;
+                }
+                else
+                {
+                    if (vnc.IsPlaying)
+                    {
+                        await ctx.RespondAsync("Already playing music.");
+                        return;
+                    }
+
+                }
 
                 if (!File.Exists(@playlist.Current.Path))
                 {
                     await ctx.RespondAsync($"File `{@playlist.Current.Path}` does not exist.");
-                    return;
-                }
-
-                // skip command if already playing
-                if (vnc.IsPlaying)
-                {
-                    await ctx.RespondAsync("Already playing music.");
                     return;
                 }
 

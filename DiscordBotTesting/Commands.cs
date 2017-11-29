@@ -26,6 +26,8 @@ namespace DiscordBotTesting
         public bool PrevRequested = false;
         public bool RestartRequested = false;
 
+        //TODO: try to avoid mid line splits
+        //TODO: print as Discord embed
         public async Task PrintLong(CommandContext ctx, string[] s)
         {
             string str = string.Join(Environment.NewLine, s);
@@ -290,7 +292,7 @@ namespace DiscordBotTesting
 
         #region Playlist
         [Command("playlist"), Description("Load all the song in a directory.")]
-        [Aliases("list")]
+        [Aliases("list", "pl")]
         public async Task Playlist(CommandContext ctx, [RemainingText, Description("Path to the read dir.")]string path = null)
         {
             await ctx.TriggerTypingAsync();
@@ -368,6 +370,7 @@ namespace DiscordBotTesting
         public async Task Lookup(CommandContext ctx) { await Task.CompletedTask; }
 
         [Command("shuffle")]
+        [Aliases("shuf")]
         public async Task Shuffle(CommandContext ctx)
         {
             if (this.playlist.Length > 0)

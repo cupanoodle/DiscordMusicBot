@@ -7,7 +7,6 @@ A music bot for Discord using local media files.
 
 # Requirements
 * This project was made using [Visual Studio 2017](https://www.visualstudio.com/thank-you-downloading-visual-studio/?sku=Community&rel=15), and targets .NET 4.6
-
 * [libopus and libsodium](https://dsharpplus.emzi0767.com/natives/index.html)
 
 # Build/Run Instructions

@@ -179,7 +179,11 @@ namespace DiscordBotTesting
                     {
                         this.playlist.Current.Position = 0;
                         if (!this.LoopTrackRequested)
+                        {
                             await this.playlist.Next();
+                        }
+                        else
+                            isCompleted = false;
                     }
                 }
                 catch (Exception ex) { exc = ex; }

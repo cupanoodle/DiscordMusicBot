@@ -25,6 +25,7 @@ namespace DiscordBotTesting
         public bool SkipRequested = false;
         public bool PrevRequested = false;
         public bool RestartRequested = false;
+        public bool LoopTrackRequested = false;
 
         //TODO: try to avoid mid line splits
         //TODO: print as Discord embed
@@ -188,7 +189,8 @@ namespace DiscordBotTesting
                     if (!this.PrevRequested && !this.SkipRequested && !this.RestartRequested)
                     {
                         this.playlist.Current.Position = 0;
-                        await this.playlist.Next();
+                        if (!this.LoopTrackRequested)
+                            await this.playlist.Next();
                     }
                 }
                 catch (Exception ex) { exc = ex; }
@@ -387,8 +389,21 @@ namespace DiscordBotTesting
             }
         }
 
-        [Command("loop"), Description("Set the playlist to loop.")]
-        public async Task Loop(CommandContext ctx) { await Task.CompletedTask; }
+        [Command("looplist"), Description("Set the playlist to loop.")]
+        [Aliases("loopplaylist", "ll")]
+        public async Task LoopList(CommandContext ctx)
+        {
+            await Task.CompletedTask;
+        }
+
+        [Command("looptrack"), Description("Set the current track to loop.")]
+        [Aliases("lt")]
+        public async Task LoopTrack(CommandContext ctx)
+        {
+            this.LoopTrackRequested = !this.LoopTrackRequested;
+
+            await ctx.RespondAsync($"The current track will {(this.LoopTrackRequested ? "" : "not ")}loop.");
+        }
 
         [Command("clear")]
         public async Task Clear(CommandContext ctx)

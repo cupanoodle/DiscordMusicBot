@@ -67,7 +67,7 @@ namespace DiscordBotTesting
         #region Music
         [Command("play"), Description("Play an audio file.")]
         [Aliases("resume")]
-        public async Task Play(CommandContext ctx, string index = null)
+        public async Task Play(CommandContext ctx, [RemainingText, Description("1-based index to the song in the playlist to play.")]int? index)
         {
             if (this.playlist.Length <= 0)
             {
@@ -85,26 +85,13 @@ namespace DiscordBotTesting
                 if (vnc == null)
                     return;
 
-                if (index != null)
+                if (index < 1 || index > this.playlist.Length)
                 {
-                    if (int.TryParse(index, out int tmp))
-                    {
-                        if (tmp < 1 || tmp > this.playlist.Length)
-                        {
-                            await ctx.RespondAsync($"Please enter a number between 1 and {this.playlist.Length}.");
-                            return;
-                        }
-                        else
-                        {
-                            await this.playlist.Seek(tmp - 1);
-                        }
-                    }
-                    else
-                    {
-                        await ctx.RespondAsync($"Please enter a number.");
-                        return;
-                    }
+                    await ctx.RespondAsync($"Please enter a number between 1 and {this.playlist.Length}.");
+                    return;
                 }
+                else if (index != null)
+                    await this.playlist.Seek((int)index - 1);
 
                 if (!File.Exists(@playlist.Current.Path))
                 {
@@ -345,26 +332,21 @@ namespace DiscordBotTesting
         }
 
         [Command("select"), Description("Queue up the next song in the playlist.")]
-        [Aliases("queue")]
-        public async Task Select(CommandContext ctx, [Description("1-based index to the song in the playlist to select.")]int index = -1)
+        [Aliases("queue", "sel")]
+        public async Task Select(CommandContext ctx, [Description("1-based index to the song in the playlist to select.")]int? index)
         {
             if (this.playlist.Length > 0)
             {
-                if (index < 1 || index > this.playlist.Length)
+                if (index > 0 && index <= this.playlist.Length)
                 {
-                    await ctx.RespondAsync($"Please enter a number between 1 and {this.playlist.Length}.");
-                    return;
-                }
-                else
-                {
-                    await this.playlist.Seek(index - 1);
+                    await this.playlist.Seek((int)index - 1);
                     await ctx.RespondAsync($"```{this.playlist.Peek()}```");
                 }
+                else if (index != null)
+                    await ctx.RespondAsync($"Please enter a number between 1 and {this.playlist.Length}.");
             }
             else
-            {
                 await ctx.RespondAsync("No songs loaded into playlist.");
-            }
         }
 
         [Command("lookup"), Description("Find a song in the current playlist.")]
@@ -384,9 +366,7 @@ namespace DiscordBotTesting
                 await PrintLong(ctx, this.playlist.ToString());
             }
             else
-            {
                 await ctx.RespondAsync("No songs loaded into playlist.");
-            }
         }
 
         [Command("looplist"), Description("Set the playlist to loop.")]
@@ -398,9 +378,12 @@ namespace DiscordBotTesting
 
         [Command("looptrack"), Description("Set the current track to loop.")]
         [Aliases("lt")]
-        public async Task LoopTrack(CommandContext ctx)
+        public async Task LoopTrack(CommandContext ctx, [RemainingText, Description("yesno?")]bool? val)
         {
-            this.LoopTrackRequested = !this.LoopTrackRequested;
+            if (val != null)
+                this.LoopTrackRequested = (bool)val;
+            else
+                this.LoopTrackRequested = !this.LoopTrackRequested;
 
             await ctx.RespondAsync($"The current track will {(this.LoopTrackRequested ? "" : "not ")}loop.");
         }
@@ -412,9 +395,7 @@ namespace DiscordBotTesting
             if (vnc != null)
             {
                 if (vnc.IsPlaying)
-                {
                     this.StopRequested = true;
-                }
             }
 
             this.playlist.Songs.Clear();
@@ -486,31 +467,36 @@ namespace DiscordBotTesting
 
         [RequireOwner, Hidden]
         [Command("dir"), Description("Get a directory listing.")]
-        public async Task Dir(CommandContext ctx, [RemainingText, Description("Path to the read dir.")]string path)
+        public async Task Dir(CommandContext ctx, [RemainingText, Description("Path to the read dir.")]string path = null)
         {
-            if (Directory.Exists(@path))
+            if (!string.IsNullOrEmpty(path))
             {
-                StringBuilder sb = new StringBuilder();
-
-                sb.AppendLine("Directories");
-                string[] dirs = Directory.GetDirectories(@path, "*", SearchOption.TopDirectoryOnly);
-                foreach (string dir in dirs)
+                if (Directory.Exists(@path))
                 {
-                    sb.AppendLine(dir);
-                }
+                    StringBuilder sb = new StringBuilder();
 
-                sb.AppendLine();
-                sb.AppendLine("Files");
-                string[] files = Directory.GetFiles(@path, "*", SearchOption.TopDirectoryOnly);
-                foreach (string file in files)
-                {
-                    sb.AppendLine(file);
-                }
+                    sb.AppendLine("Directories");
+                    string[] dirs = Directory.GetDirectories(@path, "*", SearchOption.TopDirectoryOnly);
+                    foreach (string dir in dirs)
+                    {
+                        sb.AppendLine(dir);
+                    }
 
-                await PrintLong(ctx, sb.ToString());
+                    sb.AppendLine();
+                    sb.AppendLine("Files");
+                    string[] files = Directory.GetFiles(@path, "*", SearchOption.TopDirectoryOnly);
+                    foreach (string file in files)
+                    {
+                        sb.AppendLine(file);
+                    }
+
+                    await PrintLong(ctx, sb.ToString());
+                }
+                else
+                    await ctx.RespondAsync("Path not found.");
             }
             else
-                await ctx.RespondAsync("Path not found.");
+                await ctx.RespondAsync("Please specify a path.");
         }
         #endregion
     }

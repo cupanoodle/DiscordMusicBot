@@ -63,6 +63,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommandConverters.cs" />
     <Compile Include="ListHelper.cs" />
     <Compile Include="Playlist.cs" />
     <Compile Include="Program.cs" />

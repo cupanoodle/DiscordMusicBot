@@ -64,6 +64,8 @@ namespace DiscordBotTesting
             Commands.CommandErrored += Commands_CommandErrored;
 
             Commands.RegisterCommands<Commands>();
+            CommandsNextUtilities.RegisterConverter(new CommandConverters.NullableBoolConverter());
+            CommandsNextUtilities.RegisterConverter(new CommandConverters.NullableIntConverter());
             #endregion
 
             #region Voice

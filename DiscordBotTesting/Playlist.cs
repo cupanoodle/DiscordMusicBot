@@ -138,18 +138,15 @@ namespace DiscordBotTesting
         {
             this.Path = path;
 
-
-            //TODO: just read file without modifying it
-            //if (System.IO.File.Exists(@path))
-            //{
-            //    TagLib.File f = TagLib.File.Create(@path);
-            //
-            //    if (f?.Tag != null)
-            //    {
-            //        this.Tag = f.Tag;
-            //    }
-            //    f.Save();
-            //}
+            if (System.IO.File.Exists(@path))
+            {
+                File f = File.Create(@path);
+            
+                if (f?.Tag != null)
+                {
+                    this.Tag = f.Tag;
+                }
+            }
         }
 
         public override string ToString()

@@ -89,17 +89,18 @@ namespace DiscordBotTesting
 
                     // stop playing current song and play the selected song
                     if (vnc.IsPlaying)
-                        this.RestartRequested = true;
-                }
-                else
-                {
-                    if (vnc.IsPlaying)
                     {
-                        await ctx.RespondAsync("Already playing music.");
-                        return;
+                        this.RestartRequested = true;
                     }
-
                 }
+
+                if (vnc.IsPlaying)
+                {
+                    if (!this.RestartRequested)
+                        await ctx.RespondAsync("Already playing music.");
+                    return;
+                }
+
 
                 if (!File.Exists(@playlist.Current.Path))
                 {

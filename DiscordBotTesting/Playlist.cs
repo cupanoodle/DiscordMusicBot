@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NAudio.Wave;
+using System.IO;
 using TagLib;
 
 namespace DiscordBotTesting
@@ -62,13 +64,13 @@ namespace DiscordBotTesting
                 PlaylistItem temp = this.Current;
 
                 Random r = new Random();
-                
+
                 this.Songs[0] = temp;
 
                 for (int i = 1; i < this.Songs.Count; i++)
                 {
                     int j = r.Next(i, this.Songs.Count);
-                    
+
                     this.Songs.Swap(i, j);
                 }
 
@@ -83,9 +85,17 @@ namespace DiscordBotTesting
         {
             StringBuilder sb = new StringBuilder();
 
+            var longest = this.Songs.Select(x => x.Duration).Max();
+
             for (int i = 0; i < this.Songs.Count; i++)
-                sb.AppendLine($"{(this.Position == i ? ">> " : "   ")}{i+1}/{this.Songs.Count} - {this.Songs[i].ToString()}");
-            
+            {
+
+                //string duration = string.Format();
+                string index = string.Format($"{{0,{this.Length / 10 + 1}:#}}/{this.Length}", (i + 1));
+
+                sb.AppendLine($"{(this.Position == i ? ">> " : "   ")}{index} - {this.Songs[i].ToString()}");
+            }
+
             return sb.ToString();
         }
 
@@ -120,7 +130,10 @@ namespace DiscordBotTesting
 
                 for (int i = startIndex; i <= endIndex; i++)
                 {
-                    sb.AppendLine($"{(this.Position == i ? ">> " : "   ")}{i + 1}/{this.Songs.Count} - {this.Songs[i].ToString()}");
+                    //string duration = string.Format();
+                    string index = string.Format($"{{0,{this.Length / 10 + 1}:#}}/{this.Length}", (i + 1));
+
+                    sb.AppendLine($"{(this.Position == i ? ">> " : "   ")}{index} - {this.Songs[i].ToString()}");
                 }
             }
 
@@ -133,6 +146,7 @@ namespace DiscordBotTesting
         public string Path;
         public Tag Tag;
         public long Position = 0;
+        public TimeSpan Duration;
 
         public PlaylistItem(string path)
         {
@@ -140,12 +154,14 @@ namespace DiscordBotTesting
 
             if (System.IO.File.Exists(@path))
             {
-                File f = File.Create(@path);
-            
+                TagLib.File f = TagLib.File.Create(@path);
+
                 if (f?.Tag != null)
                 {
                     this.Tag = f.Tag;
                 }
+
+                this.Duration = GetMediaDuration(this.Path);
             }
         }
 
@@ -156,6 +172,22 @@ namespace DiscordBotTesting
                 artist += " - ";
 
             return artist != null || this.Tag?.Title != null ? $"{artist}{this.Tag.Title ?? string.Empty}" : this.Path.Split('\\').Last();
+        }
+
+        TimeSpan GetMediaDuration(string MediaFilename)
+        {
+            double duration = 0.0;
+            using (FileStream fs = System.IO.File.OpenRead(MediaFilename))
+            {
+                Mp3Frame frame = Mp3Frame.LoadFromStream(fs);
+
+                while (frame != null)
+                {
+                    duration += (double)frame.SampleCount / (double)frame.SampleRate;
+                    frame = Mp3Frame.LoadFromStream(fs);
+                }
+            }
+            return TimeSpan.FromSeconds(duration);
         }
     }
 }
